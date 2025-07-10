@@ -1,0 +1,55 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/firefighter_iot?serverTimezone=UTC&useSSL=false
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+# MQTT配置
+mqtt:
+  broker:
+    url: tcp://localhost:1883
+  client:
+    id: firefighter-server
+  topics:
+    data: firefighter/data
+    commands: firefighter/commands
+    alerts: firefighter/alerts
+    status: firefighter/status
+
+# 系统配置
+firefighter:
+  system:
+    data-retention-days: 30
+    alert-threshold:
+      heart-rate-max: 160
+      blood-oxygen-min: 90
+      temperature-max: 39.0
+      battery-low: 20
+    
+logging:
+  level:
+    com.firefighter: DEBUG
+    org.springframework.web: INFO
+  file:
+    name: logs/firefighter-iot.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.firefighter.commander.controller.MainController">
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header">
+         <padding>
+            <Insets bottom="10" left="20" right="20" top="10" />
+         </padding>
+         <Label text="消防员智能安全手表 - 指挥中心" styleClass="title">
+            <font>
+               <Font name="System Bold" size="24" />
+            </font>
+         </Label>
+         <Region HBox.hgrow="ALWAYS" />
+         <Label fx:id="totalDevicesLabel" text="总设备数: 0" styleClass="stat-label" />
+         <Label fx:id="onlineDevicesLabel" text="在线设备: 0" styleClass="stat-label" />
+         <Label fx:id="alertCountLabel" text="警报数量: 0" styleClass="alert-label" />
+      </HBox>
+   </top>
+   
+   <center>
+      <VBox spacing="10">
+         <padding>
+            <Insets bottom="10" left="20" right="20" top="10" />
+         </padding>
+         
+         <!-- 消防员数据表格 -->
+         <TableView fx:id="firefighterTable" prefHeight="400">
+            <columns>
+               <TableColumn fx:id="deviceIdColumn" text="设备ID" prefWidth="120" />
+               <TableColumn fx:id="heartRateColumn" text="心率(bpm)" prefWidth="100" />
+               <TableColumn fx:id="bloodOxygenColumn" text="血氧(%)" prefWidth="100" />
+               <TableColumn fx:id="temperatureColumn" text="体温(°C)" prefWidth="100" />
+               <TableColumn fx:id="batteryColumn" text="电池(%)" prefWidth="100" />
+               <TableColumn fx:id="locationColumn" text="位置坐标" prefWidth="200" />
+            </columns>
+         </TableView>
+         
+         <!-- 控制面板 -->
+         <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="evacuateButton" text="紧急撤退" styleClass="danger-button" />
+            <Button fx:id="statusButton" text="状态查询" styleClass="info-button" />
+            <TextField fx:id="commandField" promptText="输入自定义指令" prefWidth="200" />
+            <Button fx:id="sendCommandButton" text="发送指令" styleClass="primary-button" />
+         </HBox>
+         
+         <!-- 日志区域 -->
+         <Label text="系统日志:" styleClass="section-title">
+            <font>
+               <Font name="System Bold" size="14" />
+            </font>
+         </Label>
+         <TextArea fx:id="logArea" prefHeight="150" editable="false" 
+                   wrapText="true" styleClass="log-area" />
+      </VBox>
+   </center>
+   
+   <bottom>
+      <HBox alignment="CENTER" spacing="20" styleClass="footer">
+         <padding>
+            <Insets bottom="10" left="20" right="20" top="10" />
+         </padding>
+         <Label text="© 2024 挖野菜队 - 消防员智能安全手表系统" styleClass="footer-text" />
+      </HBox>
+   </bottom>
+</BorderPane> 

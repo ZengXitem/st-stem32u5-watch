@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: firefighter-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: firefighter123
+      MYSQL_DATABASE: firefighter_iot
+      MYSQL_USER: firefighter
+      MYSQL_PASSWORD: firefighter123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d
+    networks:
+      - firefighter-network
+    restart: unless-stopped
+
+  # MQTT Broker (EMQX)
+  mqtt-broker:
+    image: emqx/emqx:5.0.0
+    container_name: firefighter-mqtt
+    environment:
+      - EMQX_NODE_NAME=emqx@127.0.0.1
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=emqx@127.0.0.1
+    ports:
+      - "1883:1883"   # MQTT
+      - "8083:8083"   # WebSocket
+      - "8084:8084"   # WSS
+      - "8883:8883"   # MQTT SSL
+      - "18083:18083" # Dashboard
+    volumes:
+      - emqx_data:/opt/emqx/data
+      - emqx_log:/opt/emqx/log
+    networks:
+      - firefighter-network
+    restart: unless-stopped
+
+  # 物联网平台后端
+  iot-platform:
+    build:
+      context: ../iot-platform
+      dockerfile: Dockerfile
+    container_name: firefighter-iot-platform
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/firefighter_iot?serverTimezone=UTC&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=firefighter
+      - SPRING_DATASOURCE_PASSWORD=firefighter123
+      - MQTT_BROKER_URL=tcp://mqtt-broker:1883
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - mqtt-broker
+    networks:
+      - firefighter-network
+    restart: unless-stopped
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: firefighter-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - firefighter-network
+    restart: unless-stopped
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: firefighter-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - iot-platform
+    networks:
+      - firefighter-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  emqx_data:
+  emqx_log:
+  redis_data:
+
+networks:
+  firefighter-network:
+    driver: bridge 
